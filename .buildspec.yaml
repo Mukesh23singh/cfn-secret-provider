@@ -13,13 +13,11 @@ phases:
   build:
     commands:
       - >
-        apt-get install -y jq &&
         (
         cd /etc/docker &&
         touch daemon.json &&
         cp daemon.json daemon.json-  &&
         jq '.["registry-mirrors"] = ["https://mirror.gcr.io"]' daemon.json- > daemon.json &&
-        ps -ef &&
-        service restart docker
+        ps -ef | grep /usr/local/bin/dockerd  | grep -v grep | awk '{print $2}' | xargs kill -1
         )
       - make S3_BUCKET_PREFIX=${LAMBDA_BUCKET_PREFIX} AWS_REGION=${LAMBDA_BUCKET_REGION} ${MAKE_TARGET:-deploy}
